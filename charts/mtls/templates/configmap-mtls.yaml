@@ -1,0 +1,14 @@
+{{- if .Values.config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mtls.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "mtls.name" . }}
+    helm.sh/chart: {{ include "mtls.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  config.ini: |-
+{{ include "toIni" .Values.config | indent 4 }}
+{{- end }}

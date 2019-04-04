@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: alpine
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - a2:42:ae:5e:a0:61:d0:ac:84:6c:71:ac:01:c9:7b:c9
+      - checkout
+      - run:
+          name: charts
+          command: cat publish.sh | sh
+          environment:
+            - GITHUB_PAGES_REPO: drGrove/charts
+      - run:
+          name: Verify
+          command: |
+            alias helm=/tmp/helm/bin/linux-amd64/helm
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+              helm repo add drgrove https://drgrove.github.io/charts
+              helm repo update
+              helm repo list
+              helm inspect drgrove/mtls
+            fi

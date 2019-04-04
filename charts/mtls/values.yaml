@@ -1,0 +1,114 @@
+# Default values for mtls.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: drgrove/mtls-server
+  tag: v0.12.0
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+secrets:
+  enabled: false
+  data: {}
+    # These secrets default to none so that mTLS will generate them automatically
+    # based on the config provided below in the config.ini [ca] section
+    # ca.key: ""
+    # ca.crt: ""
+
+# Persist SQLite data to a persistent volume
+persistence:
+  sqlite3:
+    enabled: true
+  user_gnupg:
+    enabled: true
+  admin_gnupg:
+    enabled: true
+  ## Since this is one volume, your access mode and size should be the size you
+  ## will need for all of these folders. In general the size of this data is
+  ## small since we store only the certificates and some extra data in the
+  ## database as well as the users/admins PGP keys. It's highly recommended to
+  ## seed the database with PGP keys from WKD as this has the smallest
+  ## footprint, but note that some users may have rather large keys.
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+  # annotations: {}
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 4000
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  paths:
+    - /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+  #
+config:
+  mtls:
+    # Minimum lifetime in seconds
+    min_lifetime: 60
+    # Maximum lifetime in seconds, if 0 it is disabled
+    # default max_lifetime is 2 days
+    max_lifetime: 82800
+  ca:
+    key: /home/mtls/secrets/certs/authority/RootCA.key
+    cert: /home/mtls/secrets/certs/authority/RootCA.pem
+    issuer: My Company Name
+    alternate_name:
+      - "*.myname.com"
+  gnupg:
+    user: /home/mtls/secrets/gnupg/
+    admin: /home/mtls/secrets/admin_gnupg/
+  storage:
+    engine: sqlite3
+  storage.sqlite3:
+    db_path: /home/mtls/database/mtls-server.db
+
+user_seeds: {}
+admin_seeds: {}
+  # If you want to seed the PGP Trust Store, you can do so by adding ASCII
+  # armored PGP keys. Using <fingerprint>.asc as the key and the ASCII armored
+  # key as the value
+  # FINGERPRINT.asc: |
+  #   ----- BEGIN PGP PUBLIC KEY BLOCK-----
+  #   ...
+  #   ----- END PGP PUBLIC KEY BLOCK-----
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
