@@ -3,7 +3,7 @@ entries:
   mtls:
   - apiVersion: v1
     appVersion: 0.12.0
-    created: 2019-04-05T08:36:22.807426987Z
+    created: 2019-04-05T08:44:29.795041574Z
     description: A Helm chart for MTLS, a service for generating SSL Client Certificates
       based on Google Beyond Corp Zero Trust Framework
     digest: 659763733e70b801da75bcdc58fcf54764dc4d2c80066be3a67191e02327d314
@@ -18,4 +18,4 @@ entries:
     urls:
     - mtls/mtls-0.1.0.tgz
     version: 0.1.0
-generated: 2019-04-05T08:36:22.806749514Z
+generated: 2019-04-05T08:44:29.794221277Z
