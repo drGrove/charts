@@ -8,6 +8,9 @@ jobs:
           fingerprints:
             - a2:42:ae:5e:a0:61:d0:ac:84:6c:71:ac:01:c9:7b:c9
       - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - a2:42:ae:5e:a0:61:d0:ac:84:6c:71:ac:01:c9:7b:c9
       - run:
           name: charts
           command: cat publish.sh | sh
