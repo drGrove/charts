@@ -27,13 +27,21 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: FQDN
-              value: {{ .Values.FQDN }}
-          {{- if or (not .Values.existingSecretPassword) .Values.secrets.enabled }}
+          {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          {{- if and .Values.secrets.enabled .Values.secrets.hasPassword }}
             - name: CA_KEY_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ template "mtls.fullname" . }}-cert-password
+                  key: password
+          {{- else if .Values.existingSecretPassword }}
+            - name: CA_KEY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecretPassword }}
                   key: password
           {{- end }}
           ports:
@@ -101,9 +109,9 @@ spec:
           secret:
             secretName: {{ include "mtls.fullname" . }}-certs
             items:
-              - key: ca.key
+              - key: tls.key
                 path: RootCA.key
-              - key: ca.crt
+              - key: tls.crt
                 path: RootCA.pem
         {{- end }}
         {{- if .Values.user_seeds }}

@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: drgrove/mtls-server
-  tag: v0.12.0
+  tag: v0.13.0
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -16,15 +16,18 @@ FQDN: &fqdn chart-example.local
 env:
   # Environment Variables
   FQDN: *fqdn
-  # PROTOCOL: https
+  PROTOCOL: https
   # CONFIG_PATH: ""
 
 secrets:
-  enabled: false
+  enabled: true
   interemediateDomain: ""
   # The domain for the intermediate certificate to pull from the output folder.
   # If no interemediateDomain is set then it will use the root ca folder to
   # pull these files.
+  hasPassword: false
+  # If your certificate has a password, then set this to true. Our scripts by
+  # default do not use password encryption of private keys.
 
 # Persist SQLite data to a persistent volume
 persistence:

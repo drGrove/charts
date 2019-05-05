@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null 2>&1 && pwd )"
 if [[ "$PWD" == "$DIR" ]]; then
   echo "This script should not be run from scripts. It should be run in the base of the mtls chart"
@@ -7,8 +8,7 @@ if [[ "$PWD" == "$DIR" ]]; then
 fi
 
 prompt_continue() {
-  read -p 'Create an intermediate certificate? (y/N) ' CREATE
-
+  read -p 'Create another intermediate certificate? (y/N) ' CREATE
   if [[ "${CREATE}" == "y" ]]; then
     query
   fi
@@ -20,12 +20,12 @@ query() {
   fi
   echo "Creating Intermediate Certificate Output Folders For ${CN}..."
   NORMALIZED_CN=$(echo "${CN}" | tr -d '[:space:][:punct:]')
+  echo $NORMALIZED_CN
   mkdir -p output/ca/intermediate/${NORMALIZED_CN}/certs \
     output/ca/intermediate/${NORMALIZED_CN}/crl \
     output/ca/intermediate/${NORMALIZED_CN}/newcerts \
     output/ca/intermediate/${NORMALIZED_CN}/private \
     output/ca/intermediate/${NORMALIZED_CN}/csr
-  chmod 700 output/ca/intermediate/${NORMALIZED_CN}/private
   touch output/ca/intermediate/${NORMALIZED_CN}/index.txt
   echo 1000 > output/ca/intermediate/${NORMALIZED_CN}/serial
   cp ${DIR}/intermediate.cnf output/ca/intermediate/${NORMALIZED_CN}/openssl.cnf
@@ -56,7 +56,7 @@ query() {
   echo "Generating Intermediate CA Certificate CSR for ${CN}..."
   openssl req -config output/ca/intermediate/${NORMALIZED_CN}/openssl.cnf \
     -new -sha256 \
-    -subj "$SUBJ" \
+    -subj "${SUBJ}" \
     -key output/ca/intermediate/${NORMALIZED_CN}/private/${NORMALIZED_CN}.key.pem \
     -out output/ca/intermediate/${NORMALIZED_CN}/csr/${NORMALIZED_CN}.csr.pem
 
@@ -65,7 +65,6 @@ query() {
     -days 3650 -notext -md sha256 \
     -in output/ca/intermediate/${NORMALIZED_CN}/csr/${NORMALIZED_CN}.csr.pem \
     -out output/ca/intermediate/${NORMALIZED_CN}/certs/${NORMALIZED_CN}.cert.pem
-  chmod 444 output/ca/intermediate/${NORMALIZED_CN}/certs/${NORMALIZED_CN}.cert.pem
 
   echo "Creating ca-chain..."
   cat output/ca/intermediate/${NORMALIZED_CN}/certs/${NORMALIZED_CN}.cert.pem \
@@ -73,6 +72,10 @@ query() {
     output/ca/intermediate/${NORMALIZED_CN}/certs/ca-chain.cert.pem
 
   unset $NORMALIZED_CN
+  SUBJ=""
+  CN=""
+  unset $SUBJ
+  unset $CN
   prompt_continue
 }
 
@@ -80,14 +83,13 @@ gen_key() {
   local NORMALIZED_CN=$1
   echo "Generating 4096 RSA Key..."
   EXTRA=""
-  if [[ -z $NOPASSWORD ]]; then
+  if [[ $WITHPASSWORD ]]; then
     EXTRA="-aes256"
   fi
   openssl \
     genrsa \
     $EXTRA  \
     -out output/ca/intermediate/${NORMALIZED_CN}/private/${NORMALIZED_CN}.key.pem 4096
-  chmod 400 output/ca/intermediate/${CN}/private/${CN}.key.pem
 }
 
 query
