@@ -53,7 +53,7 @@ values: |
       - value3b
       - value3b
 usage: |
-  {{ include "helm-toolkit.utils.joinListWithComma" .Values.test }}
+  {{ include "toIni" .Values.test }}
 return: |
   [sec1]
   key1 = value1

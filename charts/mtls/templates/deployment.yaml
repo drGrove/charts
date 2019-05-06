@@ -52,7 +52,7 @@ spec:
             - name: config
               mountPath: /home/mtls/config.ini
               subPath: config.ini
-            {{- if and .Values.secrets.enabled .Values.secrets.data }}
+            {{- if or .Values.existingSecret .Values.secrets.enabled }}
             - name: ca-creds
               mountPath: /home/mtls/secrets/certs/authority
               readOnly: false
@@ -74,13 +74,13 @@ spec:
             {{- if .Values.persistence.user_gnupg.enabled }}
             - name: persistence
               mountPath: {{ .Values.config.gnupg.user }}
-              subPath: user_gnupg
+              subPath: {{ .Values.persistence.user_gnupg.subPath | default "gnupg" }}
               readOnly: false
             {{- end }}
             {{- if .Values.persistence.admin_gnupg.enabled }}
             - name: persistence
               mountPath: {{ .Values.config.gnupg.admin }}
-              subPath: admin_gnupg
+              subPath: {{ .Values.persistence.admin_gnupg.subPath | default "admin_gnupg" }}
               readOnly: false
             {{- end }}
           livenessProbe:
@@ -96,18 +96,18 @@ spec:
       volumes:
         - name: config
           configMap:
-            {{- if .Values.existingSecret }}
-            name: {{ .Values.existingSecret }}
-            {{- else }}
             name: {{ include "mtls.fullname" . }}
-            {{- end }}
             items:
               - key: config.ini
                 path: config.ini
-        {{- if and .Values.secrets.enabled .Values.secrets.data }}
+        {{- if or .Values.existingSecret .Values.secrets.enabled }}
         - name: ca-creds
           secret:
+            {{- if .Values.existingSecret }}
+            secretName: {{ .Values.existingSecret }}
+            {{- else }}
             secretName: {{ include "mtls.fullname" . }}-certs
+            {{- end }}
             items:
               - key: tls.key
                 path: RootCA.key

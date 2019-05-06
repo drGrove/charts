@@ -1,6 +1,6 @@
 description: A Helm chart for MTLS, a service for generating SSL Client Certificates based on Google Beyond Corp Zero Trust Framework
 name: mtls
-version: 0.3.0
+version: 0.3.1
 appVersion: 0.13.0
 home: https://www.github.com/drGrove/mtls-server/
 sources:

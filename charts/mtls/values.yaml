@@ -35,8 +35,10 @@ persistence:
     enabled: true
   user_gnupg:
     enabled: true
+    subPath: gnupg
   admin_gnupg:
     enabled: true
+    subPath: admin_gnupg
   ## Since this is one volume, your access mode and size should be the size you
   ## will need for all of these folders. In general the size of this data is
   ## small since we store only the certificates and some extra data in the
