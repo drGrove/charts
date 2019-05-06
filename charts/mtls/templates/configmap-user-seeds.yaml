@@ -11,6 +11,6 @@ metadata:
 data:
 {{- range $key, $value := .Values.user_seeds }}
   {{ $key }}: |-
-{{ $value | indent 6 }}
+{{ $value | indent 4 }}
 {{- end }}
 {{- end }}

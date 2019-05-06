@@ -16,27 +16,27 @@ mkdir -p output/ca/certs \
 chmod 700 output/ca/private
 touch output/ca/index.txt
 echo 1000 > output/ca/serial
-cp ${DIR}/ca.cnf output/ca/openssl.cnf
+cp "${DIR}/ca.cnf" output/ca/openssl.cnf
 sed -i "s|^dir = /root/ca|dir = ${PWD}/output/ca|g" output/ca/openssl.cnf
 
 if [[ -z "$SUBJ" ]]; then
   if [[ -z "$C" ]]; then
-    read -p 'COUNTRY: ' C
+    read -rp 'COUNTRY: ' C
   fi
   if [[ -z "$ST" ]]; then
-    read -p 'State/Province: ' ST
+    read -rp 'State/Province: ' ST
   fi
   if [[ -z "$L" ]]; then
-    read -p 'Locality: ' L
+    read -rp 'Locality: ' L
   fi
   if [[ -z "$O" ]]; then
-    read -p 'Organization Name: ' O
+    read -rp 'Organization Name: ' O
   fi
   if [[ -z "$OU" ]]; then
-    read -p 'Organizational Unit: ' OU
+    read -rp 'Organizational Unit: ' OU
   fi
   if [[ -z "$CN" ]]; then
-    read -p 'Common Name: ' CN
+    read -rp 'Common Name: ' CN
   fi
   SUBJ="/CN=$CN/O=$O/OU=$OU/C=$C/ST=$ST/L=$L"
 fi
@@ -63,7 +63,8 @@ SUBJ=""
 CN=""
 unset $SUBJ
 unset $CN
-read -p 'Create an intermediate certificate? (y/N) ' CREATE
+read -rp 'Create an intermediate certificate? (y/N) ' CREATE
 if [[ "${CREATE}" == "y" ]]; then
-  source ./scripts/create-intermediate.sh
+  # shellcheck disable=SC1091
+  source "./scripts/create-intermediate.sh"
 fi

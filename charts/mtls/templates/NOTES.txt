@@ -27,7 +27,7 @@
 ###      See values.yaml's secrets.ca_key and secrets.ca_crt             ###
 ############################################################################
 
-This configuration will not allow other services to take advanced of Client
+This configuration will not allow other services to take advantage of Client
 Certificate Authentication via MTLS.
 
 This is due to the fact that the nginx-ingress requires the ability to connect

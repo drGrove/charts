@@ -8,7 +8,7 @@ if [[ "$PWD" == "$DIR" ]]; then
 fi
 
 prompt_continue() {
-  read -p 'Create another intermediate certificate? (y/N) ' CREATE
+  read -rp 'Create another intermediate certificate? (y/N) ' CREATE
   if [[ "${CREATE}" == "y" ]]; then
     query
   fi
@@ -16,64 +16,67 @@ prompt_continue() {
 
 query() {
   if [[ -z "${CN}" ]]; then
-    read -p 'What is the common name for this? (ie. My Intermediate CA): ' CN
+    read -rp 'What is the common name for this? (ie. My Intermediate CA): ' CN
   fi
   echo "Creating Intermediate Certificate Output Folders For ${CN}..."
   NORMALIZED_CN=$(echo "${CN}" | tr -d '[:space:][:punct:]')
-  echo $NORMALIZED_CN
-  mkdir -p output/ca/intermediate/${NORMALIZED_CN}/certs \
-    output/ca/intermediate/${NORMALIZED_CN}/crl \
-    output/ca/intermediate/${NORMALIZED_CN}/newcerts \
-    output/ca/intermediate/${NORMALIZED_CN}/private \
-    output/ca/intermediate/${NORMALIZED_CN}/csr
-  touch output/ca/intermediate/${NORMALIZED_CN}/index.txt
-  echo 1000 > output/ca/intermediate/${NORMALIZED_CN}/serial
-  cp ${DIR}/intermediate.cnf output/ca/intermediate/${NORMALIZED_CN}/openssl.cnf
+  echo "${NORMALIZED_CN}"
+  mkdir -p "output/ca/intermediate/${NORMALIZED_CN}/certs" \
+    "output/ca/intermediate/${NORMALIZED_CN}/crl" \
+    "output/ca/intermediate/${NORMALIZED_CN}/newcerts" \
+    "output/ca/intermediate/${NORMALIZED_CN}/private" \
+    "output/ca/intermediate/${NORMALIZED_CN}/csr"
+  touch "output/ca/intermediate/${NORMALIZED_CN}/index.txt"
+  echo 1000 > "output/ca/intermediate/${NORMALIZED_CN}/serial"
+  cp "${DIR}/intermediate.cnf" "output/ca/intermediate/${NORMALIZED_CN}/openssl.cnf"
   sed -i "s|^dir = /root/ca|dir = ${PWD}/output/intermediate/${NORMALIZED_CN}|g" \
-    output/ca/intermediate/${NORMALIZED_CN}/openssl.cnf
-  gen_key $NORMALIZED_CN
+    "output/ca/intermediate/${NORMALIZED_CN}/openssl.cnf"
+  gen_key "${NORMALIZED_CN}"
   if [[ -z "$SUBJ" ]]; then
     if [[ -z "$C" ]]; then
-      read -p 'COUNTRY: ' C
+      read -rp 'COUNTRY: ' C
     fi
     if [[ -z "$ST" ]]; then
-      read -p 'State/Province: ' ST
+      read -rp 'State/Province: ' ST
     fi
     if [[ -z "$L" ]]; then
-      read -p 'Locality: ' L
+      read -rp 'Locality: ' L
     fi
     if [[ -z "$O" ]]; then
-      read -p 'Organization Name: ' O
+      read -rp 'Organization Name: ' O
     fi
     if [[ -z "$OU" ]]; then
-      read -p 'Organizational Unit: ' OU
+      read -rp 'Organizational Unit: ' OU
     fi
     if [[ -z "$CN" ]]; then
-      read -p 'Common Name: ' CN
+      read -rp 'Common Name: ' CN
     fi
     SUBJ="/CN=$CN/O=$O/OU=$OU/C=$C/ST=$ST/L=$L"
   fi
   echo "Generating Intermediate CA Certificate CSR for ${CN}..."
-  openssl req -config output/ca/intermediate/${NORMALIZED_CN}/openssl.cnf \
+  openssl req -config "output/ca/intermediate/${NORMALIZED_CN}/openssl.cnf" \
     -new -sha256 \
     -subj "${SUBJ}" \
-    -key output/ca/intermediate/${NORMALIZED_CN}/private/${NORMALIZED_CN}.key.pem \
-    -out output/ca/intermediate/${NORMALIZED_CN}/csr/${NORMALIZED_CN}.csr.pem
+    -key "output/ca/intermediate/${NORMALIZED_CN}/private/${NORMALIZED_CN}.key.pem" \
+    -out "output/ca/intermediate/${NORMALIZED_CN}/csr/${NORMALIZED_CN}.csr.pem"
 
   echo "Generating Intermediate CA Certificate for ${NORMALIZED_CN}..."
   openssl ca -config output/ca/openssl.cnf -extensions v3_intermediate_ca \
     -days 3650 -notext -md sha256 \
-    -in output/ca/intermediate/${NORMALIZED_CN}/csr/${NORMALIZED_CN}.csr.pem \
-    -out output/ca/intermediate/${NORMALIZED_CN}/certs/${NORMALIZED_CN}.cert.pem
+    -in "output/ca/intermediate/${NORMALIZED_CN}/csr/${NORMALIZED_CN}.csr.pem" \
+    -out "output/ca/intermediate/${NORMALIZED_CN}/certs/${NORMALIZED_CN}.cert.pem"
 
   echo "Creating ca-chain..."
-  cat output/ca/intermediate/${NORMALIZED_CN}/certs/${NORMALIZED_CN}.cert.pem \
+  cat "output/ca/intermediate/${NORMALIZED_CN}/certs/${NORMALIZED_CN}.cert.pem" \
     output/ca/certs/ca.cert.pem > \
-    output/ca/intermediate/${NORMALIZED_CN}/certs/ca-chain.cert.pem
+    "output/ca/intermediate/${NORMALIZED_CN}/certs/ca-chain.cert.pem"
 
-  unset $NORMALIZED_CN
+  # Clear out the values
+  NORMALIZED_CN=""
   SUBJ=""
   CN=""
+  # Unset the values
+  unset $NORMALIZED_CN
   unset $SUBJ
   unset $CN
   prompt_continue
@@ -89,7 +92,8 @@ gen_key() {
   openssl \
     genrsa \
     $EXTRA  \
-    -out output/ca/intermediate/${NORMALIZED_CN}/private/${NORMALIZED_CN}.key.pem 4096
+    -out "output/ca/intermediate/${NORMALIZED_CN}/private/${NORMALIZED_CN}.key.pem" \
+    4096
 }
 
 query
