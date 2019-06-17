@@ -1,13 +1,14 @@
-description: A Helm chart for MTLS, a service for generating SSL Client Certificates based on Google Beyond Corp Zero Trust Framework
-name: mtls
-version: 0.3.3
-appVersion: 0.13.0
+appVersion: 0.14.2
+description: A Helm chart for MTLS, a service for generating SSL Client Certificates
+  based on Google Beyond Corp Zero Trust Framework
 home: https://www.github.com/drGrove/mtls-server/
-sources:
-  - https://www.github.com/drGrove/mtls-server/
-  - https://hub.docker.com/r/drgrove/mtls-server/
-maintainers:
-  - name: drGrove
-    email: danny@drgrovellc.com
 keywords:
-  - mtls
+- mtls
+maintainers:
+- email: danny@drgrovellc.com
+  name: drGrove
+name: mtls
+sources:
+- https://www.github.com/drGrove/mtls-server/
+- https://hub.docker.com/r/drgrove/mtls-server/
+version: 0.3.4

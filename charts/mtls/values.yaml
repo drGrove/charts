@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: drgrove/mtls-server
-  tag: v0.13.0
+  tag: v0.14.2
   pullPolicy: IfNotPresent
 
 nameOverride: ""

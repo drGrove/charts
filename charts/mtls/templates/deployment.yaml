@@ -109,9 +109,9 @@ spec:
             secretName: {{ include "mtls.fullname" . }}-certs
             {{- end }}
             items:
-              - key: tls.key
+              - key: ca.key
                 path: RootCA.key
-              - key: tls.crt
+              - key: ca.crt
                 path: RootCA.pem
         {{- end }}
         {{- if .Values.user_seeds }}
