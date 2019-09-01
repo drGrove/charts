@@ -49,5 +49,4 @@ if [ ! -f "${release_dir}/${helm_file}" ]; then
   chmod +x "${bin_dir}/tiller"
 fi
 
-echo "Adding to path"
 export PATH="${PWD}/${bin_dir}:${PATH}"
