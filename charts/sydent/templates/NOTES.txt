@@ -19,3 +19,12 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl port-forward $POD_NAME 8080:80
 {{- end }}
+{{- if not .Values.persistence.enabled }}
+
+#######################################################################################
+#                           WARNING: Persistence is DISABLED                          #
+#             All data will be lost when this pod restarts. It is hightly             #
+#    recommended that you enable persistence with `--set persistence.enabled=True`    #
+#######################################################################################
+
+{{- end }}

@@ -13,9 +13,54 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 
+config:
+	http:
+		replication.https.bind_address: "::"
+		internalapi.http.port: ""
+		replication.https.port: 4434
+		replication.https.certfile: ""
+		obey_x_forwarded_for: False
+		clientapi.http.bind_address: "::"
+		clientapi.http.port: 8090
+		federation.verifycerts: True
+		replication.https.cacert: ""
+	db:
+		db.file: /home/sydent/sydent.db
+	sms:
+		bodytemplate: "Your code is {token}"
+	crypto:
+		ed25519.signingkey: ""
+	general:
+		log.path: ""
+		log.level: INFO
+		pidfile.path: /home/sydent/sydent.pid
+	email:
+		email.smtphost: localhost
+		email.smtpusername: ""
+		email.smtppassword: ""
+		email.smtpport: 25
+		email.tlsmode: 0
+		email.template: /home/sydent/email.template
+		email.subject: Your Validation Token
+		email.invite.subject: "%(sender_display_name)s has invited you to chat"
+		email.from: Sydent Validation <noreply@{hostname}>
+
 service:
   type: ClusterIP
   port: 8090
+
+persistence:
+  enabled: true
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+  # annotations: {}
+  accessMode: ReadWriteOnce
+  size: 10Gi
 
 ingress:
   enabled: true

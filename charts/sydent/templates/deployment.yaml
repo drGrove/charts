@@ -19,6 +19,14 @@ spec:
         app.kubernetes.io/name: {{ include "sydent.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      volumes:
+      - name: config
+        secret:
+          {{- if .Values.existingConfigSecret }}
+          secretName: {{ .Values.existingConfigSecret }}
+          {{- else }}
+          secretName: {{ template "sydent.fullname" . }}-config
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- if .Values.image.digest | default "" }}
@@ -31,9 +39,19 @@ spec:
             - name: http
               containerPort: 8090
               protocol: TCP
+          volumeMounts:
+          - name: config
+            mountPath: /home/sydent/sydent.conf
+            subPath: sydent.conf
+            readOnly: true
+          {{- if .Values.persistence.enabled }}
+          - name: database
+            mountPath: /home/sydent/sydent.db
+            subPath: sydent.db
+          {{- end }}
           livenessProbe:
             httpGet:
-              path: /_matrix/identity/api/v1/pubkey/ed25519:0
+                path: /_matrix/identity/api/v1/pubkey/ed25519:0
               port: http
           readinessProbe:
             httpGet:
