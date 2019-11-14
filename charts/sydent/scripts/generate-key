@@ -1,0 +1,5 @@
+#!/bin/bash
+
+TAG=$(cat values.yaml | grep 'tag:' | awk '{ print $2 }')
+
+docker run drgrove/matrix-sydent:${TAG} /home/sydent/scripts/generate-key

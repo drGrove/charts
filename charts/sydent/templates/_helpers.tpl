@@ -30,3 +30,31 @@ Create chart name and version as used by the chart label.
 {{- define "sydent.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+abstract: |
+  Converts a dictionary into an INI formatted file.
+values: |
+  sec1:
+    key1: value1
+    key2: value2
+    key3:
+      - value3a
+      - value3b
+      - value3b
+usage: |
+  {{ include "toIni" .Values.test }}
+return: |
+  [sec1]
+  key1 = value1
+  key2 = value2
+  key3 = value3a,value3b,value3c
+*/}}
+{{- define "sydent.toIni" -}}
+{{- range $section, $details := . }}
+[{{ $section }}]
+{{- range $dkey, $dvalue := $details }}
+{{ $dkey }} = {{ if eq (kindOf $dvalue) "slice" }}{{ include "joinListWithComma" $dvalue }}{{ else }}{{ $dvalue }}{{- end -}}
+{{- end }}
+{{- end }}
+{{- end }}

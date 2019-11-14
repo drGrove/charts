@@ -19,14 +19,17 @@ spec:
         app.kubernetes.io/name: {{ include "sydent.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      volumes:
+      volumes: {{ if and (not .Values.config) (not .Values.persistence.enabled) }}[]{{ end }}
+      {{- if .Values.config }}
       - name: config
-        secret:
-          {{- if .Values.existingConfigSecret }}
-          secretName: {{ .Values.existingConfigSecret }}
-          {{- else }}
-          secretName: {{ template "sydent.fullname" . }}-config
-          {{- end }}
+        configMap:
+          name: {{ include "sydent.fullname" . }}
+      {{- end }}
+      {{- if .Values.persistence.enabled }}
+      - name: database
+        persistentVolumeClaim:
+          claimName: {{ include "sydent.fullname" . }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- if .Values.image.digest | default "" }}
@@ -39,24 +42,27 @@ spec:
             - name: http
               containerPort: 8090
               protocol: TCP
-          volumeMounts:
+          volumeMounts: {{ if and (not .Values.config) (not .Values.persistence.enabled) }}[]{{ end }}
+          {{- if .Values.config }}
           - name: config
             mountPath: /home/sydent/sydent.conf
             subPath: sydent.conf
-            readOnly: true
+            readOnly: false
+          {{- end }}
           {{- if .Values.persistence.enabled }}
           - name: database
-            mountPath: /home/sydent/sydent.db
-            subPath: sydent.db
+            mountPath: /home/sydent/database
           {{- end }}
           livenessProbe:
             httpGet:
-                path: /_matrix/identity/api/v1/pubkey/ed25519:0
+              path: "/_matrix/identity/api/v1/pubkey/ed25519:0"
               port: http
           readinessProbe:
             httpGet:
-              path: /_matrix/identity/api/v1/pubkey/ed25519:0
+              path: "/_matrix/identity/api/v1/pubkey/ed25519:0"
               port: http
+          securityContext:
+            fsGroup: 1000
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

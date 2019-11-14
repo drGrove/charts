@@ -1,0 +1,15 @@
+{{- if .Values.config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "sydent.fullname" . }}
+  labels:
+    app: {{ template "sydent.name" . }}
+    chart: {{ template "sydent.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+  sydent.conf: |-
+    {{ include "sydent.toIni" .Values.config | nindent 4 }}
+
+{{- end }}
